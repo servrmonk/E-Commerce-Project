@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import { Route, Routes, Link } from "react-router-dom";
-import Product from "../pages/Product";
-import ProductDetail from "../pages/ProductDetail";
-import LoginPage from "../pages/LoginRegister";
-import ContactUs from "../pages/Contact";
-import AboutUs from "../pages/About";
-import Home from "../pages/Home";
+import React, { useState } from 'react';
+import { Route, Routes, Link } from 'react-router-dom';
+import Product from '../pages/Product';
+import ProductDetail from '../pages/ProductDetail';
+import LoginPage from '../pages/LoginRegister';
+import ContactUs from '../pages/Contact';
+import AboutUs from '../pages/About';
+import Home from '../pages/Home';
+
+import UserProfile from '../components/UserProfile';
 // import Product from "./components/Product";
 // import ProductDetail from "./components/ProductDetail";
 // import Login from "./components/Login";
@@ -25,6 +27,7 @@ function Routing() {
         <Route path="/register" element={<LoginPage />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<AboutUs />} />
+        <Route path="/user-profile" element={<UserProfile />} />
       </Routes>
     </div>
   );
