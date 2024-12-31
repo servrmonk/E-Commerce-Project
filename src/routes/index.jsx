@@ -7,7 +7,7 @@ import ContactUs from '../pages/Contact';
 import AboutUs from '../pages/About';
 import Home from '../pages/Home';
 
-import UserProfile from '../components/UserProfile';
+import Profile from '../pages/Profile';
 // import Product from "./components/Product";
 // import ProductDetail from "./components/ProductDetail";
 // import Login from "./components/Login";
@@ -27,7 +27,7 @@ function Routing() {
         <Route path="/register" element={<LoginPage />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<AboutUs />} />
-        <Route path="/user-profile" element={<UserProfile />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </div>
   );
