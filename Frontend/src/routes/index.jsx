@@ -1,0 +1,36 @@
+import React, { useState } from 'react';
+import { Route, Routes, Link } from 'react-router-dom';
+import Product from '../pages/Product';
+import ProductDetail from '../pages/ProductDetail';
+import LoginPage from '../pages/LoginRegister';
+import ContactUs from '../pages/Contact';
+import AboutUs from '../pages/About';
+import Home from '../pages/Home';
+
+import Profile from '../pages/Profile';
+// import Product from "./components/Product";
+// import ProductDetail from "./components/ProductDetail";
+// import Login from "./components/Login";
+// import ContactUs from "./components/ContactUs";
+// import About from "./components/About";
+// import Home from "./components/Home";
+
+function Routing() {
+  return (
+    <div>
+      {/* Routes */}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/product" element={<Product />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<LoginPage />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </div>
+  );
+}
+
+export default Routing;
