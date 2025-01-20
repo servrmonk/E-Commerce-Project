@@ -1,14 +1,23 @@
-// src/components/ProductDetail.jsx
 import React from "react";
 import { useParams, Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
+import { addToCart } from "../redux/slice/cart.slice";
 import productsData from "../db.json"; // Import data directly
 
 const ProductDetail = () => {
   const { id } = useParams(); // Get product ID from URL params
+  const dispatch = useDispatch(); // Access Redux dispatch function
   const product = productsData?.products?.find((prod) => prod.id === id);
+
   if (!product) {
     return <div>Product not found</div>;
   }
+
+  const handleAddToCart = () => {
+    console.log("Product is ",product)
+    dispatch(addToCart(product)); // Dispatch addToCart action
+  };
 
   return (
     <div className="p-9 mt-16 grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -33,7 +42,10 @@ const ProductDetail = () => {
 
         {/* Action Buttons */}
         <div className="mt-6 flex gap-4">
-          <button className="py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors">
+          <button 
+            onClick={handleAddToCart} 
+            className="py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors"
+          >
             Add to Cart
           </button>
           <button className="py-2 px-4 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors">

@@ -8,21 +8,22 @@ import AboutUs from '../pages/About';
 import Home from '../pages/Home';
 
 import Profile from '../pages/Profile';
+// import ShoppingCart from '../pages/Cart';
 
 function Routing() {
   return (
     <div>
-      {/* Routes */}
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/product" element={<Product />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<LoginPage />} />
-        <Route path="/contact" element={<ContactUs />} />
-        <Route path="/about" element={<AboutUs />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/product" element={<Product />} />
+  <Route path="/product/:id" element={<ProductDetail />} />
+  <Route path="/login" element={<LoginPage />} />
+  <Route path="/register" element={<LoginPage />} />
+  <Route path="/contact" element={<ContactUs />} />
+  <Route path="/about" element={<AboutUs />} />
+  <Route path="/profile" element={<Profile />} />
+  {/* <Route path="/cart" element={<ShoppingCart />} />  */}
+</Routes>
     </div>
   );
 }

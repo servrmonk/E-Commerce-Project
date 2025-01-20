@@ -1,18 +1,20 @@
-// src/App.jsx
 import React from "react";
 import { BrowserRouter } from "react-router-dom"; // Ensure BrowserRouter wraps everything
+import { Provider } from "react-redux"; // Import Provider from react-redux
+import store from "./redux/store/store.jsx"; // Import the store
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Routing from "./routes/index.jsx";
 
-
 function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routing /> 
-      <Footer />
-    </BrowserRouter>
+    <Provider store={store}> {/* Wrap everything with Provider and pass the store */}
+      <BrowserRouter>
+        <Navbar />
+        <Routing />
+        <Footer />
+      </BrowserRouter>
+    </Provider>
   );
 }
 

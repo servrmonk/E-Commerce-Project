@@ -4,13 +4,19 @@ import { BsCart3 } from "react-icons/bs";
 import { IoMdContact } from "react-icons/io";
 import { FaBars } from "react-icons/fa";
 import { CgSearch } from "react-icons/cg";
+import { useSelector } from "react-redux";
+import ShoppingCart from "../pages/Cart"; // Import the ShoppingCart component
 
 const Navbar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State to manage mobile menu visibility
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // State to manage search query
   const modalRef = useRef(null); // Create ref for modal to detect clicks outside
   const buttonRef = useRef(null); // Create ref for contact button
+
+  // Access cart items from Redux state
+  const cartItems = useSelector((state) => state.cart.cartItems);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -23,32 +29,27 @@ const Navbar = () => {
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
-  // Close modal when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target) &&
-        !buttonRef.current.contains(event.target)
-      ) {
-        setIsModalOpen(false);
-      }
-    };
 
-    document.addEventListener("mousedown", handleClickOutside);
+  const handleCartClick = () => {
+    setIsCartOpen((isCartOpen) => !isCartOpen); // Toggle cart visibility
+  };
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  const handleContactClick = () => {
+    if (isModalOpen) {
+      setIsModalOpen(false); // Close if already open
+    } else {
+      setIsModalOpen(true); // Open if not open
+    }
+  };
 
   return (
-    <nav className="bg-slate-300 py-3  fixed top-0 w-full shadow-md z-50">
+    <nav className="bg-slate-300 py-3 fixed top-0 w-full shadow-md z-50">
       <div className="container mx-auto px-4 flex justify-between items-center">
         {/* 0. Hamburger Icon for Mobile */}
         <button className="lg:hidden flex items-center" onClick={toggleMenu}>
           <FaBars className="text-2xl" />
         </button>
+
         {/* 1. Ecommerce Heading */}
         <div className="flex items-center">
           <NavLink className="text-2xl font-bold px-2" to="/">
@@ -79,34 +80,22 @@ const Navbar = () => {
         <div className="lg:flex hidden items-center space-x-6">
           <ul className="flex space-x-6">
             <li>
-              <NavLink
-                className="text-lg font-semibold hover:text-indigo-600"
-                to="/"
-              >
+              <NavLink className="text-lg font-semibold hover:text-indigo-600" to="/">
                 Home
               </NavLink>
             </li>
             <li>
-              <NavLink
-                className="text-lg font-semibold hover:text-indigo-600"
-                to="/product"
-              >
+              <NavLink className="text-lg font-semibold hover:text-indigo-600" to="/product">
                 Products
               </NavLink>
             </li>
             <li>
-              <NavLink
-                className="text-lg font-semibold hover:text-indigo-600"
-                to="/about"
-              >
+              <NavLink className="text-lg font-semibold hover:text-indigo-600" to="/about">
                 About
               </NavLink>
             </li>
             <li>
-              <NavLink
-                className="text-lg font-semibold hover:text-indigo-600"
-                to="/contact"
-              >
+              <NavLink className="text-lg font-semibold hover:text-indigo-600" to="/contact">
                 Contact
               </NavLink>
             </li>
@@ -117,25 +106,28 @@ const Navbar = () => {
         <div className="flex items-center space-x-2">
           {/* Cart Icon */}
           <NavLink
-            to="/cart"
+            // to="/cart"
+            onClick={handleCartClick} // Toggle cart modal on cart icon click
             className="text-2xl ml-5 py-2 rounded-lg hover:bg-gray-100 transition duration-300 flex items-center"
           >
             <BsCart3 className="ml-2" />
             <span className="mr-1 w-4 h-4 mb-2 bg-red-500 text-white text-xs flex items-center justify-center rounded-full">
-              5
+              {cartItems.length} {/* Dynamically show the cart count */}
             </span>
           </NavLink>
-          {/* contact icon */}
+
+          {/* Contact Icon */}
           <button
-            onClick={toggleModal}
-            className="text-2xl   ml-5 py-2  px-1 rounded-lg hover:bg-gray-100 transition duration-300 flex items-center"
+            onClick={handleContactClick} // Toggle modal on contact button click
+            className="text-2xl ml-5 py-2 px-1 rounded-lg hover:bg-gray-100 transition duration-300 flex items-center"
+            ref={buttonRef}
           >
             <IoMdContact />
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Modal (Full-screen or centered modal) */}
+      {/* Mobile Menu Modal */}
       {isMenuOpen && (
         <div className="lg:hidden fixed top-16 w-[40%] h-[35%] min-h-fit bg-opacity-100 z-50">
           <div
@@ -225,6 +217,9 @@ const Navbar = () => {
           </div>
         </div>
       )}
+
+      {/* Conditionally render ShoppingCart component when isCartOpen is true */}
+      {isCartOpen && <ShoppingCart isOpen={isCartOpen} toggleCart={handleCartClick} />}
     </nav>
   );
 };

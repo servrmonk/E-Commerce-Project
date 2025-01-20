@@ -62,7 +62,7 @@ const Footer = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            © Achal Taki
+            © Raushan singh
           </a>
           <span className="mx-2">|</span>
           <a
