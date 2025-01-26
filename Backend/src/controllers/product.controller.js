@@ -54,7 +54,7 @@ const updateProduct = async (req, res, next) => {
 
 // Delete product (admin only)
 const deleteProduct = async (req, res, next) => {
-  // Check if the user is an admin
+  
   if (req.user.role !== 'admin') {
     return next(new ApiError(403, 'Forbidden: Admins only'));
   }

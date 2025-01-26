@@ -1,7 +1,7 @@
-// src/components/Product.jsx
+
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
-import productsData from "../db.json"; // Import data directly
+import { Link } from "react-router-dom"; 
+import productsData from "../db.json"; 
 
 // Function to limit text to a specific number of words
 const limitWords = (text, wordLimit) => {

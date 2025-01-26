@@ -8,7 +8,7 @@ import Routing from "./routes/index.jsx";
 
 function App() {
   return (
-    <Provider store={store}> {/* Wrap everything with Provider and pass the store */}
+    <Provider store={store}> 
       <BrowserRouter>
         <Navbar />
         <Routing />

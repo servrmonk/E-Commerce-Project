@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState, useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { BsCart3 } from "react-icons/bs";
 import { IoMdContact } from "react-icons/io";
 import { FaBars } from "react-icons/fa";
 import { CgSearch } from "react-icons/cg";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ShoppingCart from "../pages/Cart"; // Import the ShoppingCart component
+
+import { logoutFun } from "../redux/slice/user.slice"; // Import the logout action
+import axios from "axios";
 
 const Navbar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,8 +18,16 @@ const Navbar = () => {
   const modalRef = useRef(null); // Create ref for modal to detect clicks outside
   const buttonRef = useRef(null); // Create ref for contact button
 
-  // Access cart items from Redux state
+  const navigate = useNavigate();
+
+  // Access cart items and user data from Redux state
   const cartItems = useSelector((state) => state.cart.cartItems);
+  const { isLoggedIn } = useSelector((state) => state.user); // Get isLoggedIn directly from the user slice
+
+  console.log("Cartitemsin navbar ", cartItems);
+
+  const dispatch = useDispatch();
+  // console.log("User is logged in:", isLoggedIn);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -24,6 +35,26 @@ const Navbar = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+  console.log("isLoggedIn ", isLoggedIn);
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "http://localhost:3000/api/users/logout",
+        {}, // Empty request body
+        {
+          withCredentials: true, // Send cookies with the request
+        }
+      );
+
+      // Dispatch logout action
+      dispatch(logoutFun());
+
+      // Redirect to login page
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const handleSearchChange = (e) => {
@@ -80,22 +111,34 @@ const Navbar = () => {
         <div className="lg:flex hidden items-center space-x-6">
           <ul className="flex space-x-6">
             <li>
-              <NavLink className="text-lg font-semibold hover:text-indigo-600" to="/">
+              <NavLink
+                className="text-lg font-semibold hover:text-indigo-600"
+                to="/"
+              >
                 Home
               </NavLink>
             </li>
             <li>
-              <NavLink className="text-lg font-semibold hover:text-indigo-600" to="/product">
+              <NavLink
+                className="text-lg font-semibold hover:text-indigo-600"
+                to="/product"
+              >
                 Products
               </NavLink>
             </li>
             <li>
-              <NavLink className="text-lg font-semibold hover:text-indigo-600" to="/about">
+              <NavLink
+                className="text-lg font-semibold hover:text-indigo-600"
+                to="/about"
+              >
                 About
               </NavLink>
             </li>
             <li>
-              <NavLink className="text-lg font-semibold hover:text-indigo-600" to="/contact">
+              <NavLink
+                className="text-lg font-semibold hover:text-indigo-600"
+                to="/contact"
+              >
                 Contact
               </NavLink>
             </li>
@@ -106,14 +149,15 @@ const Navbar = () => {
         <div className="flex items-center space-x-2">
           {/* Cart Icon */}
           <NavLink
-            // to="/cart"
             onClick={handleCartClick} // Toggle cart modal on cart icon click
             className="text-2xl ml-5 py-2 rounded-lg hover:bg-gray-100 transition duration-300 flex items-center"
           >
             <BsCart3 className="ml-2" />
-            <span className="mr-1 w-4 h-4 mb-2 bg-red-500 text-white text-xs flex items-center justify-center rounded-full">
-              {cartItems.length} {/* Dynamically show the cart count */}
-            </span>
+            {/* {cartItems.length > 0 && (
+              <span className="mr-1 w-4 h-4 mb-2 bg-red-500 text-white text-xs flex items-center justify-center rounded-full">
+                {cartItems.length}
+              </span>
+            )} */}
           </NavLink>
 
           {/* Contact Icon */}
@@ -193,33 +237,39 @@ const Navbar = () => {
           </button>
           <h3 className="text-center text-lg font-semibold mb-4">Options</h3>
           <div className="flex flex-col space-y-4">
-            <NavLink
-              to="/login"
-              className="text-center text-blue-500 font-semibold"
-              onClick={toggleModal}
-            >
-              Login
-            </NavLink>
-            <NavLink
-              to="/register"
-              className="text-center text-blue-500 font-semibold"
-              onClick={toggleModal}
-            >
-              Register
-            </NavLink>
-            <NavLink
-              to="/logout"
-              className="text-center text-red-500 font-semibold"
-              onClick={toggleModal}
-            >
-              Logout
-            </NavLink>
+            {!isLoggedIn ? (
+              <>
+                <NavLink
+                  to="/login"
+                  className="text-center text-blue-500 font-semibold"
+                  onClick={toggleModal}
+                >
+                  Login
+                </NavLink>
+                <NavLink
+                  to="/register"
+                  className="text-center text-blue-500 font-semibold"
+                  onClick={toggleModal}
+                >
+                  Register
+                </NavLink>
+              </>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="text-center text-red-500 font-semibold"
+              >
+                Logout
+              </button>
+            )}
           </div>
         </div>
       )}
 
       {/* Conditionally render ShoppingCart component when isCartOpen is true */}
-      {isCartOpen && <ShoppingCart isOpen={isCartOpen} toggleCart={handleCartClick} />}
+      {isCartOpen && (
+        <ShoppingCart isOpen={isCartOpen} toggleCart={handleCartClick} />
+      )}
     </nav>
   );
 };

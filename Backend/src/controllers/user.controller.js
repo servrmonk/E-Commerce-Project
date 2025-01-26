@@ -25,21 +25,20 @@ const generateAccessAndRefreshTokens = async (userId) => {
     );
   }
 };
+
 const registerUser = async (req, res) => {
   try {
-    const { fullName, email, username, password, role } = req.body;
-
-    // Check if all required fields are provided
-    if ([fullName, email, username, password].some((field) => !field?.trim())) {
+    const { fullName, email, password, username, role } = req.body;
+    if (![fullName, email, password, username].every((field) => field?.trim())) {
       return res.status(400).json(new ApiResponse(400, null, "All fields are required"));
     }
 
     const existedUser = await User.findOne({
-      $or: [{ username }, { email }],
+      $or: [{ email }, { username }],
     });
 
     if (existedUser) {
-      return res.status(409).json(new ApiResponse(409, null, "User with email or username already exists"));
+      return res.status(409).json(new ApiResponse(409, null, "User already exists"));
     }
 
     const user = await User.create({
@@ -47,7 +46,7 @@ const registerUser = async (req, res) => {
       email,
       password,
       username: username.toLowerCase(),
-      role: role || "customer", // Default to "customer" if role is not provided
+      role: role || "customer",
     });
 
     const createdUser = user.toObject();
@@ -60,59 +59,36 @@ const registerUser = async (req, res) => {
   }
 };
 
-
 const loginUser = async (req, res) => {
   try {
-    const { email,  password } = req.body;
-    console.log("req.body ",req.body);
+    const { email, password } = req.body;
 
-    if (!email) {
-      throw new ApiError(400, "Username or email is required");
+    if (!email || !password) {
+      throw new ApiError(400, "Email and password are required");
     }
 
-    const user = await User.findOne({
-      $or: [{ email }],
-    });
-
+    const user = await User.findOne({ email });
     if (!user) {
       throw new ApiError(404, "User does not exist");
     }
 
-    const isPasswordValid = await user.isPasswordCorrect(password); //already defined in user.model
-
+    const isPasswordValid = await user.isPasswordCorrect(password);
     if (!isPasswordValid) {
       throw new ApiError(404, "Password incorrect");
     }
 
-    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
-      user._id
-    );
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
     const loggedInUser = user.toObject();
     delete loggedInUser.password;
     delete loggedInUser.refreshToken;
 
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, options)
-      .json(
-        new ApiResponse(
-          200,
-          {
-            user: loggedInUser,
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-          },
-          "User logged in successfully"
-        )
-      );
+    return res.status(200)
+      .cookie("accessToken", accessToken, { httpOnly: true })
+      .cookie("refreshToken", refreshToken, { httpOnly: true })
+      .json(new ApiResponse(200, { user: loggedInUser, accessToken, refreshToken }, "User logged in successfully"));
   } catch (error) {
-    throw new ApiError(
-      500,
-      "Something went wrong while logging in  user",
-      error
-    );
+    throw new ApiError(500, "Error logging in user", error);
   }
 };
 
@@ -137,7 +113,7 @@ const logoutUser = async (req, res) => {
 
 const refreshAccessToken = async (req, res) => {
   const incomingRefreshToken =
-    req.cookies.refreshToken || req.body.refreshToken; //cookies in case of smartphone
+    req.cookies.refreshToken || req.body.refreshToken;
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Unauthorized request");
   }
@@ -207,7 +183,7 @@ const updateAccountDetails = async (req, res) => {
   try {
     const { fullName, email, role } = req.body;
 
-    // Check if fullName and email are provided
+    
     if (!fullName || !email) {
       throw new ApiError(400, "Full name and email are required");
     }
@@ -218,13 +194,21 @@ const updateAccountDetails = async (req, res) => {
         $set: {
           fullName,
           email,
-          role: role || req.user.role, // Keep existing role if not provided
+          role: role || req.user.role, 
         },
       },
       { new: true, select: "-password" }
     );
 
-    return res.status(200).json(new ApiResponse(200, updatedUser, "Account details updated successfully"));
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          updatedUser,
+          "Account details updated successfully"
+        )
+      );
   } catch (error) {
     throw new ApiError(500, "Error updating account details", error);
   }

@@ -1,60 +1,119 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-// import { buyPremium } from "../redux/slice/cart.slice"; // Import the Razorpay action
-
 import { loadStripe } from "@stripe/stripe-js";
-import axios from 'axios'; // Import axios
+
+import axios from "axios";
+import {
+  setCartItems,
+  removeFromCart,
+  clearFromCart,
+} from "../redux/slice/cart.slice";
 
 const ShoppingCart = ({ isOpen, toggleCart }) => {
   const cartItems = useSelector((state) => state.cart.cartItems);
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+  const userId = useSelector((state) => state.user.userData); // Moved this out of useEffect
   const dispatch = useDispatch();
 
+ 
+  console.log("isLoggedIn, userId ", isLoggedIn, " == ", userId);
+
+  const fetchCart = async () => {
+    const idToken = localStorage.getItem("accessToken");
+    console.log("idtoken ", idToken);
+    console.log("Inside fetch cart");
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/api/cart/getcart`,
+        {
+          headers: {
+            Authorization: `Bearer ${idToken}`, // Pass token in headers
+          },
+        }
+      );
+      console.log("response in cart is ", response);
+      dispatch(setCartItems(response.data.cart.items)); // Update Redux with fetched data
+    } catch (error) {
+      console.error("Error fetching cart data:", error);
+    }
+  };
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchCart();
+    }
+  }, [isLoggedIn]); // Added userId to the dependency array
+
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + item.price, 0).toFixed(2);
+    return cartItems
+      .reduce((total, item) => total + item.price * item.quantity, 0)
+      .toFixed(2);
   };
 
-  // Handle Razorpay checkout
-  // const handleCheckout = () => {
-  //   if (cartItems.length > 0) {
-  //     dispatch(buyPremium(cartItems)); // Dispatch buyPremium action with cart items
-  //   } else {
-  //     alert("Your cart is empty.");
-  //   }
-  // };
+  const handleAddToCart = async (product) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/cart/add-to-cart",
+        {
+          product,
+        }
+      );
+      dispatch(setCartItems(response.data.cart.items)); // Update Redux state
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+    }
+  };
   const handleCheckout = async () => {
-    // loading the strip module
-    const stripe = await loadStripe(
-      `pk_test_51QjJ0tLOvsoGjYbbnVbsQxzm5R1AZUVQaRXNM8JGHBaMgeUMtRGoebNCenZy2g3gmhLWvQZlBnwk78MvYjx5JCbT00Yel2lwSJ`
-    ); //publishable key
-
-    const body = {
-      products: cartItems,
-    };
-
-    const headers = {
-      "Content-Type": "application/json",
-    };
-
-    const apiURL = `http://localhost:3000/api/cart/create-checkout-session`;
+    if (!isLoggedIn) {
+      alert("Please login first to proceed with checkout.");
+      return;
+    }
 
     try {
-      // Use axios to send the POST request
-      const response = await axios.post(apiURL, body, { headers });
+      const stripe = await loadStripe(
+        `pk_test_51QjJ0tLOvsoGjYbbnVbsQxzm5R1AZUVQaRXNM8JGHBaMgeUMtRGoebNCenZy2g3gmhLWvQZlBnwk78MvYjx5JCbT00Yel2lwSJ`
+      );
+
+      if (!stripe) {
+        throw new Error("Stripe initialization failed.");
+      }
+
+      const idToken = localStorage.getItem("accessToken"); // Ensure the token is available
+      if (!idToken) {
+        alert("User is not authenticated. Please log in.");
+        return;
+      }
+
+      const response = await axios.post(
+        "http://localhost:3000/api/cart/create-checkout-session",
+        { products: cartItems },
+        {
+          headers: {
+            Authorization: `Bearer ${idToken}`, // Include token for authentication
+          },
+        }
+      );
+
       const session = response.data;
+      if (!session.id) {
+        throw new Error("Invalid session data received from the server.");
+      }
 
       const result = await stripe.redirectToCheckout({ sessionId: session.id });
 
       if (result.error) {
-        console.log(result.error);
+        console.error("Stripe Checkout error:", result.error.message);
+        alert("Something went wrong during checkout. Please try again.");
       }
     } catch (error) {
-      console.error("Error creating checkout session:", error);
+      console.error("Error during checkout:", error);
+      alert(
+        "An error occurred during checkout. Please check the console for details."
+      );
     }
   };
 
   return (
     <div>
-      {/* Cart Slide Over */}
       {isOpen && (
         <div
           className="relative z-50"
@@ -62,7 +121,6 @@ const ShoppingCart = ({ isOpen, toggleCart }) => {
           role="dialog"
           aria-modal="true"
         >
-          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-gray-500/75 transition-opacity z-40"
             aria-hidden="true"
@@ -116,7 +174,7 @@ const ShoppingCart = ({ isOpen, toggleCart }) => {
                         ) : (
                           cartItems.map((item) => (
                             <div
-                              key={item.id}
+                              key={item?.productId}
                               className="flex items-center justify-between border-b py-4"
                             >
                               <div className="flex items-center">
@@ -130,10 +188,30 @@ const ShoppingCart = ({ isOpen, toggleCart }) => {
                                     {item.name}
                                   </p>
                                   <p className="text-sm text-gray-500">
-                                    ${item.price}
+                                    ${item.price} x {item.quantity}
                                   </p>
                                 </div>
                               </div>
+                              {/* <div className="flex items-center">
+                                <button
+                                  onClick={() => handleAddToCart(item)}
+                                  className="text-green-500 hover:text-green-700 px-2"
+                                >
+                                  +
+                                </button>
+                                <button
+                                  onClick={() => dispatch(removeFromCart(item))}
+                                  className="text-red-500 hover:text-red-700 px-2"
+                                >
+                                  -
+                                </button>
+                                <button
+                                  onClick={() => dispatch(clearFromCart(item))}
+                                  className="ml-4 text-red-700 hover:text-red-900 px-2"
+                                >
+                                  Remove
+                                </button>
+                              </div> */}
                             </div>
                           ))
                         )}
@@ -158,7 +236,7 @@ const ShoppingCart = ({ isOpen, toggleCart }) => {
                         </div>
                         <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                           <p>
-                            or
+                            or{" "}
                             <button
                               type="button"
                               className="font-medium text-indigo-600 hover:text-indigo-500"

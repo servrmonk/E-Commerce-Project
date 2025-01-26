@@ -8,7 +8,8 @@ const verifyJWT = async (req, _, next) => {
     const token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
-    console.log("accessToken ", token);
+
+    console.log("accessToken token received from frontend", token);
 
     if (!token) {
       throw new ApiError(401, "Unauthorized request");
@@ -30,7 +31,7 @@ const verifyJWT = async (req, _, next) => {
 };
 
 // Middleware to check if user has admin role
-const admin = (req, res, next) => {
+const admin = (req, _, next) => {
   if (req.user && req.user.role === "admin") {
     // Assuming 'role' is stored in the user model
     return next();
