@@ -40,7 +40,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        "http://localhost:3000/api/users/logout",
+        "https://e-commerce-project-gb0m.onrender.com/api/users/logout",
         {}, // Empty request body
         {
           withCredentials: true, // Send cookies with the request

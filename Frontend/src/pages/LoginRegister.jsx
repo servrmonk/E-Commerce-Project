@@ -43,8 +43,8 @@ const LoginPage = () => {
 
     try {
       const url = isSignIn
-        ? "https://ai-powered-ecommerce.onrender.com/api/users/login"
-        : "https://ai-powered-ecommerce.onrender.com/api/users/register";
+        ? "https://e-commerce-project-gb0m.onrender.com/api/users/login"
+        : "https://e-commerce-project-gb0m.onrender.com/api/users/register";
 
       const response = await axios.post(url, formData, {
         withCredentials: true,

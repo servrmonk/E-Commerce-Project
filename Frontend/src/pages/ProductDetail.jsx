@@ -42,7 +42,7 @@ const ProductDetail = () => {
 
       if (userId) {
         // Send API request to add the product to the user's cart in the database
-        await axios.post("https://ai-powered-ecommerce.onrender.com/api/cart/add-to-cart", {
+        await axios.post("https://e-commerce-project-gb0m.onrender.com/api/cart/add-to-cart", {
           userId,
           product: productWithId, // Send the simplified product
         });
