@@ -24,7 +24,7 @@ const ShoppingCart = ({ isOpen, toggleCart }) => {
     console.log("Inside fetch cart");
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/cart/getcart`,
+        `https://ai-powered-ecommerce.onrender.com/api/cart/getcart`,
         {
           headers: {
             Authorization: `Bearer ${idToken}`, // Pass token in headers
@@ -52,7 +52,7 @@ const ShoppingCart = ({ isOpen, toggleCart }) => {
   const handleAddToCart = async (product) => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/cart/add-to-cart",
+        "https://ai-powered-ecommerce.onrender.com/api/cart/add-to-cart",
         {
           product,
         }
@@ -84,7 +84,7 @@ const ShoppingCart = ({ isOpen, toggleCart }) => {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/api/cart/create-checkout-session",
+        "https://ai-powered-ecommerce.onrender.com/api/cart/create-checkout-session",
         { products: cartItems },
         {
           headers: {
