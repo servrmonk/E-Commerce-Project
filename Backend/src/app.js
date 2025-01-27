@@ -17,6 +17,8 @@ app.use(
   })
 );
 
+console.log("process.env.CORS_ORIGIN ",process.env.CORS_ORIGIN)
+
 app.options("*", cors());
 
 app.use(express.json({ limit: "16kb" }));
