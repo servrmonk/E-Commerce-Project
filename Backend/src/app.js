@@ -10,7 +10,7 @@ const app = express();
 // Specify the frontend origin here, instead of "*"
 app.use(
   cors({
-    origin: "process.env.CORS_ORIGIN", // Change this to your frontend URL
+    origin: process.env.CORS_ORIGIN, // Change this to your frontend URL  
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // Ensure credentials (cookies) are allowed
   })
